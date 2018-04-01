@@ -17,8 +17,11 @@ public class MainActivity extends AppCompatActivity {
         final Context context = this;
 
         //TODO implement hostname in rasp pi controller
-        ActivityManager.setAOIModel(new AOIModel(this, new RaspberryPiController("hostname", "script/webpage")));
+        ActivityManager.setAOIModel(new AOIModel(this, new RaspberryPiController(this, "git-up.com", "RPiApp/manage.py")));
         ActivityManager.getAOIModel().init();
+        if (ActivityManager.getAlarmClock() == null) {
+            ActivityManager.initAlarmClock();
+        }
 
         Button newAlarmButton = findViewById(R.id.newalarmbutt);
         newAlarmButton.setOnClickListener(new View.OnClickListener() {

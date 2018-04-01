@@ -69,33 +69,27 @@
             android:textSize="24sp" />
 
         <CheckBox
-            android:id="@+id/makesurecheck"
+            android:id="@+id/fullsendcheck"
             android:layout_width="131dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="70dp" />
     </LinearLayout>
 
     <EditText
+        android:id="@+id/fullsendinterval"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
         android:ems="10"
-        android:inputType="number"
-        android:text="Select Interval Length" />
-
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="number"
-        android:text="Amount of Repititions" />
+        android:hint="Snooze Interval (Seconds)"
+        android:inputType="number" />
 
     <Button
         android:id="@+id/finalset"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:text="SET ALARM" />
 
 </LinearLayout>

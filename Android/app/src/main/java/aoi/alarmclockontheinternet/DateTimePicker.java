@@ -4,11 +4,15 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Victor on 31/03/2018.
@@ -23,6 +27,9 @@ public class DateTimePicker implements DatePickerDialog.OnDateSetListener, TimeP
 
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
+
+    private TextView dateView;
+    private TextView timeView;
 
     private OnCompleteRunnable onComplete;
 
@@ -61,6 +68,7 @@ public class DateTimePicker implements DatePickerDialog.OnDateSetListener, TimeP
             timeSet = false;
             Toast.makeText(context, "Time was reset!", Toast.LENGTH_SHORT).show();
         }
+        updateDateTimeViews();
     }
 
     boolean isTimeSet() {
@@ -75,6 +83,11 @@ public class DateTimePicker implements DatePickerDialog.OnDateSetListener, TimeP
         return timePickerDialog;
     }
 
+    void setDateTimeViews(TextView dateView, TextView timeView) {
+        this.dateView = dateView;
+        this.timeView = timeView;
+    }
+
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
@@ -83,6 +96,7 @@ public class DateTimePicker implements DatePickerDialog.OnDateSetListener, TimeP
         c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         alarmDateTime = c.getTime();
         timeSet = false;
+        updateDateTimeViews();
         if (!launchConsecutive) {
             Toast.makeText(context, "Time was reset!", Toast.LENGTH_SHORT).show();
         } else {
@@ -101,8 +115,23 @@ public class DateTimePicker implements DatePickerDialog.OnDateSetListener, TimeP
         c.set(Calendar.MINUTE, minute);
         alarmDateTime = c.getTime();
         timeSet = true;
+        updateDateTimeViews();
         if (launchConsecutive) {
             onComplete.run(alarmDateTime);
+        }
+    }
+
+    private void updateDateTimeViews() {
+        if (dateView != null && timeView != null && alarmDateTime != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM", Locale.US);
+            dateView.setText(dateFormat.format(alarmDateTime));
+
+            if (timeSet) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.US);
+                timeView.setText(timeFormat.format(alarmDateTime));
+            } else {
+                timeView.setText("Time");
+            }
         }
     }
 

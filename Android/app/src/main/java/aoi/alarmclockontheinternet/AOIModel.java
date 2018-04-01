@@ -7,7 +7,6 @@ import android.content.Intent;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -20,7 +19,7 @@ import xyz.victorolaitan.easyjson.JSONElement;
  */
 
 class AOIModel {
-    private Context context;
+    Context context;
     private AlarmManager alarmManager;
     RaspberryPiController piController;
 
@@ -37,13 +36,16 @@ class AOIModel {
     void init() {
         File appDataFile = new File(context.getFilesDir(), "appData.txt");
         if (appDataFile.exists()) {
+            //appDataFile.delete();
             try {
                 appData = EasyJSON.open(appDataFile);
 
                 if (!alarmsSet) {
                     ArrayList<JSONElement> arrayList = appData.search("alarms").getChildren();
                     for (JSONElement alarmData : arrayList) {
-                        setAlarm(new Date((Long) alarmData.getValue()));
+                        setAlarm(new Date((Long) alarmData.valueOf("time")),
+                                (Boolean) alarmData.valueOf("fullSend"),
+                                ((Long) alarmData.valueOf("fullSendInterval")).intValue());
                     }
                     alarmsSet = true;
                 }
@@ -52,29 +54,29 @@ class AOIModel {
                 e.printStackTrace();
             }
         }
-        return;
     }
 
-    boolean saveAlarms() {
+    private void saveAlarms() {
         appData = EasyJSON.create(new File(context.getFilesDir(), "appData.txt"));
         JSONElement array = appData.putArray("alarms");
         for (Alarm alarm : alarms) {
-            array.putPrimitive(alarm.getTime().getTime());
+            JSONElement struct = array.putStructure("");
+            struct.putPrimitive("time", alarm.getTime().getTime());
+            struct.putPrimitive("fullSend", alarm.isFullSend());
+            struct.putPrimitive("fullSendInterval", alarm.getFullSendInterval());
         }
         try {
             appData.save();
         } catch (EasyJSONException e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
-    void setAlarm(Date time) {
+    void setAlarm(Date time, boolean fullSend, int fullSendInterval) {
         boolean enableBootReceiver = alarms.size() == 0;
 
-        Alarm alarm = new Alarm(alarmManager, time);
-        alarm.setAlarmIntent(generateAlarmIntent());
+        Alarm alarm = new Alarm(alarmManager, time, fullSend, fullSendInterval);
+        //alarm.setAlarmIntent(generateAlarmIntent());
         alarms.add(alarm);
 
         ActivityManager.notifyAdapterAlarmInserted(alarms.size() - 1);
@@ -82,20 +84,19 @@ class AOIModel {
 
         if (enableBootReceiver) {
             ActivityManager.enableBootReceiver(context);
-        }
-    }
-
-    void cancelAlarm(Alarm alarm) {
-        for (int i = 0; i < alarms.size(); i++) {
-            if (alarms.get(i).equals(alarm)) {
-                cancelAlarm(i);
-                return;
+            if (ActivityManager.getAlarmClock() != null && !ActivityManager.getAlarmClock().isRunning()) {
+                ActivityManager.initAlarmClock();
             }
         }
     }
 
+    void cancelAlarm(Alarm alarm) {
+        cancelAlarm(getIndex(alarm));
+    }
+
     void cancelAlarm(int index) {
-        alarms.get(index).cancelAlarm(alarmManager);
+        alarms.get(index).disable(piController);
+        //alarms.get(index).cancelAlarm(alarmManager);
         alarms.remove(index);
 
         ActivityManager.notifyAdapterAlarmRemoved(index);
@@ -103,7 +104,19 @@ class AOIModel {
 
         if (alarms.size() == 0) {
             ActivityManager.disableBootReceiver(context);
+            if (ActivityManager.getAlarmClock() != null && ActivityManager.getAlarmClock().isRunning()) {
+                ActivityManager.disableAlarmClock();
+            }
         }
+    }
+
+    int getIndex(Alarm alarm) {
+        for (int i = 0; i < alarms.size(); i++) {
+            if (alarms.get(i).equals(alarm)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     PendingIntent generateAlarmIntent() {

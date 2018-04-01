@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -25,6 +27,8 @@ public class AddAlarmActivity extends AppCompatActivity {
 
         final AddAlarmActivity context = this;
         dateTimePicker = new DateTimePicker(this, false);
+
+        dateTimePicker.setDateTimeViews((TextView) findViewById(R.id.textView), (TextView) findViewById(R.id.textView3));
 
         final Button selectDate = findViewById(R.id.opendatebutt);
         final Button selectTime = findViewById(R.id.opentimebutt);
@@ -56,12 +60,24 @@ public class AddAlarmActivity extends AppCompatActivity {
         });
         selectTime.setEnabled(false);
 
+        final CheckBox fullSendCheck = findViewById(R.id.fullsendcheck);
+        final EditText fullSendInterval = findViewById(R.id.fullsendinterval);
+        fullSendCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                fullSendInterval.setEnabled(isChecked);
+            }
+        });
+        fullSendInterval.setEnabled(fullSendCheck.isChecked());
+
         Button finalSet = findViewById(R.id.finalset);
         finalSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (dateTimePicker.isTimeSet()) {
-                    ActivityManager.getAOIModel().setAlarm(dateTimePicker.getAlarmDateTime());
+                    ActivityManager.getAOIModel().setAlarm(dateTimePicker.getAlarmDateTime(),
+                            fullSendCheck.isChecked(),
+                            fullSendCheck.isChecked() ? Integer.parseInt(fullSendInterval.getText().toString()) : -1);
                     finish();
                 } else {
                     Toast.makeText(context, "Alarm Time wasn't set or has been reset!", Toast.LENGTH_SHORT).show();
