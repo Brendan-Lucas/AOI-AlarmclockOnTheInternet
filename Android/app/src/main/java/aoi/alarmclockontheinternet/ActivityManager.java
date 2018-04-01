@@ -4,12 +4,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import java.util.Timer;
+
 /**
  * Created by Victor on 31/03/2018.
  */
 
 class ActivityManager {
     private static AOIModelClass AOIModelClass;
+    private static AlarmClock alarmClock;
     private static AlarmRecyclerAdapter alarmRecyclerAdapter;
 
     static void setAOIModel(AOIModel aoiModel) {
@@ -22,6 +25,22 @@ class ActivityManager {
 
     static AOIModel getAOIModel() {
         return AOIModelClass.aoiModel;
+    }
+
+    static AlarmClock getAlarmClock() {
+        return alarmClock;
+    }
+
+    static void initAlarmClock() {
+        alarmClock = new AlarmClock(getAOIModel()) ;
+        Timer timer = new Timer(true);
+        timer.schedule(alarmClock, 5 * 1000, 10 * 1000);
+        alarmClock.setRunning(true);
+    }
+
+    static void disableAlarmClock() {
+        alarmClock.cancel();
+        alarmClock.setRunning(false);
     }
 
     static void setAlarmRecyclerAdapter(AlarmRecyclerAdapter alarmRecyclerAdapter) {

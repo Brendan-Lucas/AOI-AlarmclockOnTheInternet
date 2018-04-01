@@ -2,6 +2,7 @@ package aoi.alarmclockontheinternet;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Intent;
 
 import java.util.Date;
 
@@ -13,15 +14,26 @@ class Alarm {
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
     private Date time;
-    private boolean enabled;
+    private boolean enabled, fullSend;
+    private int fullSendInterval;
 
-    Alarm(AlarmManager alarmManager, Date time) {
+    Alarm(AlarmManager alarmManager, Date time, boolean fullSend, int fullSendIntervalSeconds) {
         this.alarmManager = alarmManager;
         this.time = time;
+        this.fullSend = fullSend;
+        this.fullSendInterval = fullSendIntervalSeconds;
     }
 
     Date getTime() {
         return time;
+    }
+
+    boolean isFullSend() {
+        return fullSend;
+    }
+
+    int getFullSendInterval() {
+        return fullSendInterval;
     }
 
     void setEnabled(boolean enabled) {
@@ -30,7 +42,7 @@ class Alarm {
 
     void setAlarmIntent(PendingIntent alarmIntent) {
         this.alarmIntent = alarmIntent;
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, time.getTime(), AlarmManager.INTERVAL_DAY, alarmIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC, time.getTime(), AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 
     void cancelAlarm(AlarmManager alarmManager) {
@@ -40,6 +52,9 @@ class Alarm {
     void enable(RaspberryPiController controller) {
         if (!enabled) {
             controller.vibrate(this);
+            Intent ringerIntent = new Intent(ActivityManager.getAOIModel().context, ActivityAlarmRinging.class);
+            ringerIntent.putExtra("alarmIndex", ActivityManager.getAOIModel().getIndex(this));
+            ActivityManager.getAOIModel().context.startActivity(ringerIntent);
             enabled = true;
         }
     }

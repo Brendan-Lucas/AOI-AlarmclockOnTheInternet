@@ -15,15 +15,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
-        wl.acquire(10000);
-
         AOIModel aoiModel = ActivityManager.getAOIModel();
 
         Alarm alarm = aoiModel.alarms.get(intent.getIntExtra("alarmIndex", -1));
         alarm.enable(aoiModel.piController);
-
-        wl.release();
     }
 }

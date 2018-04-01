@@ -40,7 +40,7 @@ public class AlarmRecyclerAdapter extends RecyclerView.Adapter<AlarmRecyclerAdap
                         public void run(Date alarmDateTime) {
                             AOIModel aoiModel = ActivityManager.getAOIModel();
                             aoiModel.cancelAlarm(alarm);
-                            aoiModel.setAlarm(alarmDateTime);
+                            aoiModel.setAlarm(alarmDateTime, alarm.isFullSend(), alarm.getFullSendInterval());
                         }
                     });
                 }
