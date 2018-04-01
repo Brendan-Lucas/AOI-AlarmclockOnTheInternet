@@ -10,34 +10,43 @@ import java.util.Date;
  */
 
 class Alarm {
-    private Date time;
+    private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
+    private Date time;
     private boolean enabled;
 
-    Alarm(AlarmManager alarmManager, PendingIntent alarmIntent, Date time) {
+    Alarm(AlarmManager alarmManager, Date time) {
+        this.alarmManager = alarmManager;
         this.time = time;
-        this.alarmIntent = alarmIntent;
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, time.getTime(), AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 
-    boolean alarmTimePassed(Date now) {
-        return now.after(time);
+    Date getTime() {
+        return time;
+    }
+
+    void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    void setAlarmIntent(PendingIntent alarmIntent) {
+        this.alarmIntent = alarmIntent;
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, time.getTime(), AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 
     void cancelAlarm(AlarmManager alarmManager) {
         alarmManager.cancel(alarmIntent);
     }
 
-    void enable(ArduinoController controller) {
+    void enable(RaspberryPiController controller) {
         if (!enabled) {
-            controller.vibrate();
+            controller.vibrate(this);
             enabled = true;
         }
     }
 
-    void disable(ArduinoController controller) {
+    void disable(RaspberryPiController controller) {
         if (enabled) {
-            controller.stopVibrating();
+            controller.stopVibrating(this);
             enabled = false;
         }
     }

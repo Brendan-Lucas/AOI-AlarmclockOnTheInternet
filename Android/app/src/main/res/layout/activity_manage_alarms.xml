@@ -4,26 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="427dp"
+    <Button
+        android:id="@+id/manage_newAlarm"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Menu" />
-
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="New Alarm" />
-
-    </LinearLayout>
+        android:text="New Alarm" />
 
     <TextView
         android:id="@+id/textView7"
@@ -35,7 +20,7 @@
         android:textSize="24sp" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/Active alarm list"
+        android:id="@+id/alarm_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

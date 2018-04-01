@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.widget.Toast;
 
 /**
  * Created by Victor on 31/03/2018.
@@ -20,8 +19,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire(10000);
 
-        // Put here YOUR code.
-        Toast.makeText(context, "Alarm !!!!!!!!!!", Toast.LENGTH_LONG).show(); // For example
+        AOIModel aoiModel = ActivityManager.getAOIModel();
+
+        Alarm alarm = aoiModel.alarms.get(intent.getIntExtra("alarmIndex", -1));
+        alarm.enable(aoiModel.piController);
 
         wl.release();
     }
